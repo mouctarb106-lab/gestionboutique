@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Multi-Boutiques Pro</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f8;--cd:#fff;--tx:#18202c;--mu:#667085;--pr:#0f7b5f;--pt:#fff;--bd:#e1e5ea;--wa:#c0392b}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11151b;--cd:#1b212a;--tx:#eef1f5;--mu:#9aa3b2;--pr:#12906c;--pt:#fff;--bd:#2b3340;--wa:#ff6b5b}}
+:root[data-theme="dark"]{--bg:#11151b;--cd:#1b212a;--tx:#eef1f5;--mu:#9aa3b2;--pr:#12906c;--pt:#fff;--bd:#2b3340;--wa:#ff6b5b}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;gap:8px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}.sub{font-size:12px;color:var(--mu)}
+nav{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}
+nav button{white-space:nowrap;border:1px solid var(--bd);background:var(--cd);color:var(--tx);padding:8px 12px;border-radius:20px;font:inherit;cursor:pointer}
+nav button.on{background:#0b6e53!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#0b6e53!important;font-weight:700;text-decoration:underline}
+main{padding:0 14px 30px;max-width:900px;margin:auto}
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.cd h2{font-size:15px;margin:0 0 8px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.kp div{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:10px}.kp b{display:block;font-size:18px}.kp span{font-size:12px;color:var(--mu)}
+input,select{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);min-width:0}
+button.b{font:inherit;padding:8px 12px;border:0;border-radius:8px;background:#0b6e53;color:#fff;cursor:pointer}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}button.d{background:var(--wa);color:#fff}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}.row>input{flex:1;min-width:90px}
+.sp{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--bd)}.sp:first-of-type{border-top:0}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.pg button{text-align:left;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:10px;font:inherit;cursor:pointer}
+.pg button:disabled{opacity:.4}.pg small{display:block;color:var(--mu)}
+.wa{color:var(--wa)}.mu{color:var(--mu);font-size:12px}.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px 4px;text-align:left;border-top:1px solid var(--bd);white-space:nowrap}
+@media print{body *{visibility:hidden}#rcp,#rcp *{visibility:visible}#rcp{position:absolute;left:0;top:0;width:100%}}
+.fl{display:flex;flex-direction:column;font-size:11px;color:var(--mu);gap:2px}.bg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;color:#fff;white-space:nowrap}
+.chs{display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%}.ch{border:1px solid var(--bd);background:var(--bg);color:var(--tx);padding:9px 16px;border-radius:20px;font:inherit;cursor:pointer}.ch.on{background:#0b6e53!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#0b6e53!important;font-weight:700}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ms{background:#0b6e53;color:#fff;padding:8px 12px;border-radius:8px;margin-bottom:10px}
+</style></head><body>
+<header><div><h1>🏪 Multi-Boutiques Pro</h1><div class="sub" id="sy">Connexion…</div></div><div class="sub" id="ro"></div></header>
+<nav id="nv"></nav><main id="app"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const F=n=>(+n||0).toLocaleString('fr-FR')+' F',uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const st=(p,s)=>+p['s_'+s]||0,D=t=>new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+let db=null,user=null,owner=false,shops=[],prods=[],sales=[],custs=[],accts=[],acct=null,al=false,aid='',lm='login',lem='',trs=[],ct=null,cur=null,fm='ticket',sc=false,qs='',pay='Espèces',cl='',rc='',tab='caisse',shop='',cart={},msg='',armed='',pend=false,dl=null,pOwner=false,busy=false,dirty={},prods0=[],costMap={},scMap={};
+try{shop=localStorage.getItem('shop')||'';aid=localStorage.getItem('acct')||''}catch(e){}
+const CFG=window.CFG||{};
+const ready=!!(CFG.url&&CFG.key&&window.supabase&&!/VOTRE/.test(CFG.url+CFG.key));
+const sb=ready?window.supabase.createClient(CFG.url,CFG.key):null;
+let hasOwner=true,ch=null,tm={},L={};
+async function fetchCol(n){const r=n==='products'?await sb.rpc('list_products'):await sb.from('docs').select('id,data').eq('collection',n);if(r.error)throw r.error;return {docs:r.data.map(x=>({id:x.id,data:()=>x.data}))}}
+const col=n=>({
+ onSnapshot(next,err){const o={next,err};(L[n]=L[n]||[]).push(o);fetchCol(n).then(next).catch(e=>err&&err(e));return()=>{L[n]=(L[n]||[]).filter(x=>x!==o)}},
+ doc:id=>({
+  async set(d){const r=await sb.from('docs').insert({collection:n,id,data:d});if(r.error)throw r.error},
+  async update(d){const r=await sb.rpc('doc_patch',{c:n,i:id,p:d});if(r.error)throw r.error},
+  async delete(){const r=await sb.from('docs').delete().eq('collection',n).eq('id',id);if(r.error)throw r.error},
+  async get(){const r=await sb.from('docs').select('data').eq('collection',n).eq('id',id).maybeSingle();if(r.error)throw r.error;return {data:()=>r.data?r.data.data:undefined}}})});
+function refresh(c){clearTimeout(tm[c]);tm[c]=setTimeout(()=>(L[c]||[]).forEach(o=>fetchCol(c).then(o.next).catch(e=>o.err&&o.err(e))),150)}
+function sub(n,set){col(n).onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})));render()},e=>{msg='Erreur de synchronisation : '+e.message;render(true)})}
+function mergeProds(){prods=prods0.map(p=>({...p,cost:costMap[p.id]??0})).sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr'))}
+function startSubs(){if(ch)return;
+ sub('shops',v=>shops=v.sort((a,b)=>(a.ts||0)-(b.ts||0)||String(a.name).localeCompare(String(b.name),'fr')));
+ sub('products',v=>{prods0=v;mergeProds()});
+ sub('costs',v=>{costMap=Object.fromEntries(v.map(x=>[x.id,+x.cost||0]));mergeProds()});
+ sub('salecosts',v=>{scMap=Object.fromEntries(v.map(x=>[x.id,+x.profit||0]))});
+ sub('sales',v=>sales=v.sort((a,b)=>b.ts-a.ts));
+ sub('clients',v=>custs=v.sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr')));
+ sub('transfers',v=>trs=v.sort((a,b)=>b.ts-a.ts));
+ ch=sb.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'docs'},p=>{const c=(p.new&&p.new.collection)||(p.old&&p.old.collection);if(c){refresh(c);if(c==='sales'||c==='transfers')refresh('products')}}).on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>loadAccts()).subscribe()}
+function stopSubs(){if(ch){sb.removeChannel(ch);ch=null}L={};shops=[];prods=[];prods0=[];costMap={};scMap={};sales=[];custs=[];trs=[];accts=[]}
+async function loadAccts(){const r=await sb.from('profiles').select('*').order('created_at');if(!r.error)accts=r.data.map(p=>({...p,ts:Date.parse(p.created_at)||0}));al=true;render()}
+dl={save:async({filename,data})=>{const t=/\.json$/.test(filename)?'application/json':/\.csv$/.test(filename)?'text/csv':'text/html',a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:t+';charset=utf-8'}));a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}};
+(async()=>{
+ $('#sy').textContent=ready?'● Synchronisé en temps réel':'Configuration manquante';
+ if(ready){db=sb;
+  try{const r=await sb.rpc('has_owner');hasOwner=!!r.data}catch(e){}
+  sb.auth.onAuthStateChange((ev,se)=>{if(ev==='PASSWORD_RECOVERY'&&se){aid=se.user.id;lm='recovery';startSubs();loadAccts()}});
+  const g=await sb.auth.getSession();
+  if(g.data&&g.data.session){aid=g.data.session.user.id;startSubs();await loadAccts()}else al=true;
+  setInterval(()=>Object.keys(L).forEach(refresh),15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)Object.keys(L).forEach(refresh)});
+ }
+ render(true);
+})();
+function curShop(){if(acct&&acct.role==='seller'&&acct.shop)shop=acct.shop;else if(!shops.find(s=>s.id===shop))shop=shops[0]?.id||'';return shop}
+function render(force){
+ const a=document.activeElement;
+ if(!force&&a&&/INPUT|SELECT/.test(a.tagName)&&$('#app').contains(a)){pend=true;return}
+ pend=false;acct=accts.find(x=>x.id===aid&&x.role!=='pending')||null;owner=acct?.role==='owner';curShop();
+ $('#ro').innerHTML=acct?`${esc(acct.name)} · ${owner?'👑':'🧾'} <button class="b g" data-a="out">Quitter</button>`:'';
+ if(db&&(!acct||lm==='recovery')){$('#nv').innerHTML='';$('#app').innerHTML=vLogin();return}
+ const tabs=owner?[['dash','📊 Tableau de bord'],['caisse','🛒 Caisse'],['stock','📦 Stock'],['cli','👥 Clients'],['fac','🧾 Factures'],['all','🗂 Stock global'],['prod','🏷️ Produits'],['me','👤 Mon compte'],['team','👤 Équipe'],['shop','🏬 Boutiques']]:[['caisse','🛒 Caisse'],['stock','📦 Stock'],['cli','👥 Clients']];
+ if(!owner)tabs.splice(0,tabs.length,['caisse','🛒 Vente'],['fac','🧾 Factures'],['me','👤 Mon compte']);
+ if(!tabs.find(t=>t[0]===tab))tab=tabs[0][0];
+ $('#nv').innerHTML=tabs.map(t=>`<button class="${t[0]===tab?'on':''}" data-a="tab" data-v="${t[0]}">${t[1]}</button>`).join('');
+ let h=msg?`<div class="ms">${esc(msg)}</div>`:'';
+ if(!db)h+='<div class="cd">Configuration manquante : renseignez votre fichier config.js (voir LISEZMOI.md).</div>';
+ else if(!shops.length&&['caisse','stock'].includes(tab))h+=owner?'<div class="cd">Commencez par créer votre première boutique dans l\'onglet <b>Boutiques</b>.</div>':'<div class="cd">Aucune boutique configurée. Contactez le propriétaire.</div>';
+ else h+=({dash:vDash,caisse:vCaisse,stock:vStock,prod:vProd,shop:vShop,cli:vCli,team:vTeam,fac:vFac,all:vAll,me:vMe})[tab]();
+ $('#app').innerHTML=h;for(const k in dirty){const e=document.getElementById(k);if(e&&e.type!=='password')e.value=dirty[k]}document.querySelectorAll('#app input:not([type=password])').forEach(i=>i.setAttribute('autocomplete','off'));if(sc){sc=false;document.getElementById('rcp')?.scrollIntoView({behavior:'smooth'})}
+}
+const shopSel=()=>(acct&&acct.role==='seller')?`<b>${sn(shop)}</b>`:`<div class="chs">${shops.map(s=>`<button class="ch ${s.id===shop?'on':''}" data-a="pick" data-v="${s.id}">${s.id===shop?'✓ ':''}${esc(s.name)}</button>`).join('')}</div>`;
+const sn=id=>esc(shops.find(s=>s.id===id)?.name||'—');
+function vDash(){
+ const t0=new Date().toDateString(),td=sales.filter(s=>new Date(s.ts).toDateString()===t0);
+ const sum=a=>a.reduce((x,s)=>x+(+s.total||0),0);
+ const val=prods.reduce((x,p)=>x+shops.reduce((y,s)=>y+st(p,s.id)*(+p.price||0),0),0);
+ const al=[];prods.forEach(p=>shops.forEach(s=>{if(st(p,s.id)<=(+p.min||0))al.push([p,s])}));
+ return `<div class="kp"><div><b>${F(sum(td))}</b><span>CA aujourd'hui</span></div><div><b>${td.length}</b><span>Ventes aujourd'hui</span></div><div><b>${F(sum(sales))}</b><span>CA total</span></div><div><b>${F(val)}</b><span>Valeur du stock</span></div><div><b>${F(Object.values(scMap).reduce((x,v)=>x+(+v||0),0))}</b><span>Bénéfice total</span></div><div><b class="wa">${F(custs.reduce((x,c)=>x+(+c.debt||0),0))}</b><span>Dettes clients</span></div></div>${vStats()}
+ <div class="cd"><h2>Par boutique</h2><div class="sc"><table><tr><th>Boutique</th><th>CA jour</th><th>Ventes</th><th>CA total</th><th>Stock</th></tr>${shops.map(s=>{const a=sales.filter(x=>x.shop===s.id),d=a.filter(x=>new Date(x.ts).toDateString()===t0);return `<tr><td>${esc(s.name)}</td><td>${F(sum(d))}</td><td>${d.length}</td><td>${F(sum(a))}</td><td>${F(prods.reduce((x,p)=>x+st(p,s.id)*(+p.price||0),0))}</td></tr>`}).join('')}</table></div></div>
+ <div class="cd"><h2>⚠️ Alertes stock bas (${al.length})</h2>${al.slice(0,30).map(([p,s])=>`<div class="sp"><span>${esc(p.name)} <span class="mu">· ${esc(s.name)}</span></span><b class="wa">${st(p,s.id)}</b></div>`).join('')||'<span class="mu">Aucune alerte.</span>'}</div>
+ <div class="cd"><div class="row"><h2 style="flex:1;margin:0">Dernières ventes</h2><button class="b g" data-a="csv">⬇ Export CSV</button></div>${sales.slice(0,25).map(s=>`<div class="sp"><span>${D(s.ts)} <span class="mu">· ${sn(s.shop)} · ${s.pay||''} · ${(s.items||[]).reduce((x,i)=>x+i.q,0)} art.</span></span><span><b>${F(s.total)}</b> <button class="b ${armed===s.id?'d':'g'}" data-a="vs" data-v="${s.id}">${armed===s.id?'Annuler ?':'↩'}</button></span></div>`).join('')||'<span class="mu">Aucune vente.</span>'}</div>`;
+}
+function vCaisse(){
+ const ids=Object.keys(cart).filter(k=>cart[k]>0),tot=ids.reduce((x,k)=>x+cart[k]*(+prods.find(p=>p.id===k)?.price||0),0);
+ return `${vIn()}<div class="cd"><div class="row"><b>Boutique :</b>${shopSel()}<input id="qs" placeholder="🔍 Rechercher…" value="${esc(qs)}"></div><div class="pg">${prods.filter(p=>p.name.toLowerCase().includes(qs.toLowerCase())).map(p=>`<button data-a="add" data-v="${p.id}" ${st(p,shop)-(cart[p.id]||0)<=0?'disabled':''}>${esc(p.name)}<small>${F(p.price)} · stock ${st(p,shop)}</small></button>`).join('')||'<span class="mu">Aucun produit.</span>'}</div></div>
+ <div class="cd"><h2>Panier</h2>${ids.map(k=>{const p=prods.find(x=>x.id===k);return p?`<div class="sp"><span>${esc(p.name)}</span><span><button class="b g" data-a="dec" data-v="${k}">−</button> <input type="text" inputmode="decimal" data-q="${k}" value="${cart[k]}" style="width:60px;text-align:center" title="Quantité"> <button class="b g" data-a="add" data-v="${k}">+</button> ${F(cart[k]*p.price)}</span></div>`:''}).join('')||'<span class="mu">Vide.</span>'}
+ <div class="row" style="margin-top:8px"><select data-a="pay">${['Espèces','Mobile Money','Carte','Crédit'].map(m=>`<option ${m===pay?'selected':''}>${m}</option>`).join('')}</select><select data-a="cl"><option value="">Client de passage</option>${custs.map(c=>`<option value="${c.id}" ${c.id===cl?'selected':''}>${esc(c.name)}</option>`).join('')}</select><input type="text" inputmode="decimal" id="rm" placeholder="Remise F" style="width:100px"></div><div class="row"><input id="cn" placeholder="Nouveau client : nom"><input id="cp" placeholder="Téléphone"><button class="b g" data-a="nc">+ Client</button></div><div class="row"><b style="flex:1">Total : ${F(tot)}</b><button class="b" data-a="sell" ${ids.length?'':'disabled'}>Valider la vente</button></div></div>${vRec()}
+ <div class="cd"><h2>Ventes récentes</h2>${sales.filter(s=>s.shop===shop).slice(0,8).map(s=>`<div class="sp"><span>${D(s.ts)}</span><span><b>${F(s.total)}</b> <button class="b g" data-a="vw" data-v="${s.id}">🧾</button></span></div>`).join('')||'<span class="mu">Aucune vente.</span>'}</div>`;
+}
+function vProd(){
+ return `<div class="cd"><h2>Nouveau produit</h2><p class="mu">Chaque champ de la liste est étiqueté. Modifiez-le puis cliquez sur Enregistrer. Le stock se gère séparément pour chaque boutique (onglet Stock).</p><div class="row"><input id="pn" placeholder="Nom"><input id="pp" type="text" inputmode="decimal" placeholder="Prix de vente (F)"><input id="pc" type="text" inputmode="decimal" placeholder="Prix d'achat (F)"><input id="pm" type="text" inputmode="decimal" placeholder="Stock minimum"><input id="px" type="text" inputmode="decimal" placeholder="Stock maximum"><button class="b" data-a="np">Ajouter</button></div></div>
+ <div class="cd">${prods.map(p=>`<div class="sp" style="flex-wrap:wrap"><span class="row" style="margin:0;flex:1;align-items:flex-end"><label class="fl" style="flex:2;min-width:120px">Nom<input id="en${p.id}" value="${esc(p.name)}"></label><label class="fl">Prix de vente<input id="ep${p.id}" type="text" inputmode="decimal" value="${+p.price||0}" style="width:100px"></label><label class="fl">Prix d'achat<input id="ec${p.id}" type="text" inputmode="decimal" value="${+p.cost||0}" style="width:100px"></label><label class="fl">Stock minimum<input id="em${p.id}" type="text" inputmode="decimal" value="${+p.min||0}" style="width:90px"></label><label class="fl">Stock maximum<input id="ex${p.id}" type="text" inputmode="decimal" value="${+p.max||0}" style="width:90px"></label><button class="b" data-a="sp" data-v="${p.id}">Enregistrer</button></span><button class="b ${armed===p.id?'d':'g'}" data-a="dp" data-v="${p.id}">${armed===p.id?'Confirmer ?':'🗑'}</button></div>`).join('')||'<span class="mu">Aucun produit.</span>'}</div>`;
+}
+function vShop(){
+ return `${vReset()}<div class="cd"><h2>Nouvelle boutique</h2><div class="row"><input id="sn" placeholder="Nom de la boutique"><input id="sa" placeholder="Adresse"><input id="stl" placeholder="Téléphone"><button class="b" data-a="ns">Créer</button></div></div>
+ <div class="cd">${shops.map(s=>`<div class="sp" style="flex-wrap:wrap"><span class="row" style="margin:0;flex:1"><input id="sn${s.id}" value="${esc(s.name)}"><input id="sa${s.id}" value="${esc(s.addr||'')}" placeholder="Adresse"><input id="st${s.id}" value="${esc(s.tel||'')}" placeholder="Téléphone"><button class="b" data-a="ss" data-v="${s.id}">Enregistrer</button></span><button class="b ${armed===s.id?'d':'g'}" data-a="ds" data-v="${s.id}">${armed===s.id?'Confirmer ?':'🗑'}</button></div>`).join('')||'<span class="mu">Aucune boutique.</span>'}</div>
+ <div class="cd mu">Toutes les boutiques partagent le même catalogue ; le stock est séparé par boutique et mis à jour en temps réel sur tous les appareils.</div>`;
+}
+function vStats(){
+ const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return d}),
+ tot=days.map(d=>sales.filter(s=>new Date(s.ts).toDateString()===d.toDateString()).reduce((x,s)=>x+(+s.total||0),0)),mx=Math.max(...tot,1),tp={},pm={};
+ sales.forEach(s=>{(s.items||[]).forEach(i=>{tp[i.n]=(tp[i.n]||0)+i.q});const k=s.pay||'Espèces';pm[k]=(pm[k]||0)+(+s.total||0)});
+ const top=Object.entries(tp).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ return `<div class="cd"><h2>📈 Ventes sur 7 jours</h2><div style="display:flex;align-items:flex-end;gap:6px;height:110px">${tot.map((t,i)=>`<div style="flex:1;text-align:center;font-size:10px"><div title="${F(t)}" style="background:var(--pr);border-radius:4px 4px 0 0;height:${Math.round(t/mx*80)}px;min-height:2px"></div>${days[i].toLocaleDateString('fr-FR',{weekday:'short'})}</div>`).join('')}</div></div><div class="cd"><h2>🏆 Meilleurs produits</h2>${top.map(([n,q])=>`<div class="sp"><span>${esc(n)}</span><b>${q}</b></div>`).join('')||'<span class="mu">—</span>'}<h2 style="margin-top:10px">💳 Par mode de paiement</h2>${Object.entries(pm).map(([k,v])=>`<div class="sp"><span>${esc(k)}</span><b>${F(v)}</b></div>`).join('')||'<span class="mu">—</span>'}</div>`}
+function vCli(){
+ return `<div class="cd"><h2>Nouveau client</h2><div class="row"><input id="cn" placeholder="Nom"><input id="cp" placeholder="Téléphone (avec indicatif)"><button class="b" data-a="nc">Ajouter</button></div></div><div class="cd">${custs.map(c=>{const n=sales.filter(s=>s.cust===c.id).length;return `<div class="sp"><span>${esc(c.name)}<br><span class="mu">${esc(c.phone)} · ${n} achat(s)</span></span><span class="row" style="margin:0">${+c.debt>0?`<b class="wa">${F(c.debt)}</b><input type="text" inputmode="decimal" id="d${c.id}" placeholder="Payé" style="width:80px"><button class="b" data-a="enc" data-v="${c.id}">Encaisser</button>`:'<span class="mu">Aucune dette</span>'}${owner?`<button class="b ${armed===c.id?'d':'g'}" data-a="dc" data-v="${c.id}">${armed===c.id?'Confirmer ?':'🗑'}</button>`:''}</span></div>`}).join('')||'<span class="mu">Aucun client.</span>'}</div>`}
+function vLogin(){
+ if(!al)return '<div class="cd">Chargement…</div>';
+ const m=msg?`<div class="ms">${esc(msg)}</div>`:'',me=accts.find(x=>x.id===aid);
+ if(lm==='recovery')return m+`<div class="cd" style="max-width:420px;margin:20px auto"><h2>Nouveau mot de passe</h2><div class="row" style="flex-direction:column;align-items:stretch"><input id="lp" type="password" placeholder="Nouveau mot de passe (6 caractères min.)"><button class="b" data-a="rec">Enregistrer</button></div></div>`;
+ if(me&&me.role==='pending')return m+`<div class="cd" style="max-width:420px;margin:20px auto"><h2>Compte en attente</h2><p class="mu">Le propriétaire doit valider votre compte et vous affecter une boutique. Revenez plus tard.</p><button class="b g" data-a="out">Quitter</button></div>`;
+ if(lm==='forgot'&&hasOwner)return m+vForgot();
+ const first=!hasOwner,su=first||lm==='signup';
+ return `${m}<div class="cd" style="max-width:420px;margin:20px auto"><h2>${first?'Créer le compte propriétaire':su?'Créer mon compte':'Connexion'}</h2>${first?'<p class="mu">Le premier compte créé devient propriétaire de ce logiciel.</p>':''}<div class="row" style="flex-direction:column;align-items:stretch">${su?'<input id="ln" placeholder="Nom complet">':''}<input id="le" type="email" placeholder="E-mail" value="${esc(lem)}"><input id="lp" type="password" placeholder="Mot de passe (6 caractères min.)"><button class="b" data-a="${su?'signup':'login'}">${su?'Créer mon compte':'Se connecter'}</button>${first?'':`<button class="b g" data-a="lm" data-v="${su?'login':'signup'}">${su?'Déjà inscrit ?':'Créer un compte'}</button><button class="b g" data-a="lm" data-v="forgot">Mot de passe oublié ?</button>`}</div></div>`}
+function vTeam(){
+ const rl={owner:'Propriétaire',seller:'Vendeur',pending:'En attente'};
+ return `<div class="cd"><h2>Équipe et accès</h2><p class="mu">Chaque utilisateur crée son compte (e-mail + mot de passe), puis vous le validez et l'affectez à une boutique.</p>${[...accts].sort((a,b)=>a.ts-b.ts).map(c=>`<div class="sp" style="flex-wrap:wrap"><span>${esc(c.name)}<br><span class="mu">${esc(c.email)} · ${rl[c.role]||''}${c.shop?' · '+sn(c.shop):''}</span></span>${c.id===aid?'<span class="mu">(vous)</span>':`<span class="row" style="margin:0"><select id="ts${c.id}">${shops.map(s=>`<option value="${s.id}" ${s.id===c.shop?'selected':''}>${esc(s.name)}</option>`).join('')}</select><button class="b" data-a="sr" data-v="${c.id}">Vendeur</button><button class="b g" data-a="so" data-v="${c.id}">Propriétaire</button><button class="b g" data-a="rp" data-v="${c.id}">✉ Lien mot de passe</button><button class="b ${armed===c.id?'d':'g'}" data-a="da" data-v="${c.id}">${armed===c.id?'Confirmer ?':'🗑'}</button></span>`}</div>`).join('')}</div>`}
+function recu(s){
+ const sh=shops.find(x=>x.id===s.shop)||{},c=custs.find(x=>x.id===s.cust),no=String(s.id||'').slice(-6).toUpperCase(),it=s.items||[];
+ const head=`<div style="text-align:center"><b style="font-size:16px">${esc(sh.name||'')}</b>${sh.addr?'<br>'+esc(sh.addr):''}${sh.tel?'<br>Tél : '+esc(sh.tel):''}</div>`;
+ const meta=`<div style="margin:8px 0;font-size:12px">${fm==='facture'?'FACTURE':'TICKET'} N° ${no}<br>${D(s.ts)}${c?'<br>Client : '+esc(c.name)+(c.phone?' · '+esc(c.phone):''):''}</div>`;
+ const lines=fm==='facture'?`<table style="width:100%;font-size:13px;color:#000"><tr><th>Désignation</th><th>Qté</th><th>P.U.</th><th>Total</th></tr>${it.map(i=>`<tr><td>${esc(i.n)}</td><td>${i.q}</td><td>${F(i.pr)}</td><td>${F(i.q*i.pr)}</td></tr>`).join('')}</table>`:it.map(i=>`<div style="display:flex;justify-content:space-between;font-size:13px"><span>${i.q} × ${esc(i.n)}</span><span>${F(i.q*i.pr)}</span></div>`).join('');
+ return head+meta+lines+`<hr>${s.rem?`<div>Remise : -${F(s.rem)}</div>`:''}<div style="font-size:16px"><b>TOTAL : ${F(s.total)}</b></div><div style="font-size:12px">Paiement : ${esc(s.pay||'Espèces')}${s.pay==='Crédit'&&c?' · Reste dû : '+F(c.debt):''}</div><div style="text-align:center;margin-top:8px;font-size:12px">Merci de votre confiance !</div>`}
+function vRec(){
+ if(!cur)return '';
+ const c=custs.find(x=>x.id===cur.cust),no=String(cur.id).slice(-6).toUpperCase(),
+ tx=`${shops.find(x=>x.id===cur.shop)?.name||''} - N° ${no}\n`+(cur.items||[]).map(i=>`${i.q} x ${i.n} = ${F(i.q*i.pr)}`).join('\n')+`\nTOTAL : ${F(cur.total)}\nMerci !`;
+ return `<div class="cd"><div class="row"><b style="flex:1">🧾 Document client</b><button class="b ${fm==='ticket'?'':'g'}" data-a="fm" data-v="ticket">Ticket</button><button class="b ${fm==='facture'?'':'g'}" data-a="fm" data-v="facture">Facture</button></div><div id="rcp" style="background:#fff;color:#000;padding:12px;border-radius:8px;max-width:${fm==='facture'?'700px':'320px'}">${recu(cur)}</div><div class="row" style="margin-top:8px"><button class="b" data-a="pr">🖨 Imprimer</button><button class="b g" data-a="dw">⬇ Télécharger</button>${c?.phone?`<a href="https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(tx)}" target="_blank" rel="noopener" style="color:var(--pr)">📲 WhatsApp</a>`:''}<button class="b g" data-a="cx">Fermer</button></div></div>`}
+function vFac(){
+ const l=sales.filter(s=>owner||s.shop===shop).slice(0,60);
+ return `${vRec()}<div class="cd"><h2>Factures et tickets</h2>${l.map(s=>`<div class="sp"><span>${D(s.ts)} <span class="mu">· ${sn(s.shop)}${custs.find(c=>c.id===s.cust)?' · '+esc(custs.find(c=>c.id===s.cust).name):''}</span></span><span><b>${F(s.total)}</b> <button class="b g" data-a="vw" data-v="${s.id}">🧾</button></span></div>`).join('')||'<span class="mu">Aucune vente.</span>'}</div>`}
+const bd=(q,p)=>{const mn=+p.min||0,mx=+p.max||0,[t,c]=q<=0?['Rupture','#c0392b']:q<=mn?['Stock bas','#d68910']:(mx&&q>=mx)?['Plein','#2563eb']:['OK','#0f7b5f'];return `<span class="bg" style="background:${c}">${t}</span>`};
+function vStock(){
+ const op=(sel)=>shops.map((s,i)=>`<option value="${s.id}" ${sel===i?'selected':''}>${esc(s.name)}</option>`).join('');
+ return `<div class="cd"><div class="row"><b>Boutique :</b>${shopSel()}</div><p class="mu">Le stock de chaque boutique est séparé. Pour comparer toutes les boutiques, ouvrez « Stock global ».</p>${prods.map(p=>{const q=st(p,shop);return `<div class="sp" style="flex-wrap:wrap"><span style="flex:1;min-width:150px"><b>${esc(p.name)}</b> ${bd(q,p)}<br><span class="mu">Stock actuel : <b>${q}</b><br>Stock minimum : ${+p.min||0} · Stock maximum : ${+p.max||0}</span></span><span class="row" style="margin:0"><input type="text" inputmode="decimal" id="q${p.id}" placeholder="Quantité" style="width:90px"><button class="b" data-a="adj" data-v="${p.id}">Entrée</button><button class="b g" data-a="sout" data-v="${p.id}">Sortie</button></span></div>`}).join('')}${prods.length?'':'<span class="mu">Aucun produit.</span>'}</div>${shops.length>1?`<div class="cd"><h2>Transfert entre boutiques</h2><p class="mu">Le stock est retiré tout de suite de la boutique d'origine. La boutique de destination le reçoit après avoir confirmé la réception.</p><div class="row" style="align-items:flex-end"><label class="fl">Produit<select id="tp">${prods.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></label><label class="fl">De<select id="tf">${op(0)}</select></label><label class="fl">Vers<select id="tt">${op(1)}</select></label><label class="fl">Quantité<input type="text" inputmode="decimal" id="tq" style="width:80px"></label><button class="b" data-a="tr">Transférer</button></div></div>`:''}${vBon()}${vHist()}`}
+function vAll(){
+ const bt=s=>prods.reduce((x,p)=>x+st(p,s.id)*(+p.cost||0),0);
+ return `<div class="cd"><h2>Stock de toutes les boutiques</h2><p class="mu"><span class="bg" style="background:#c0392b">Rupture</span> <span class="bg" style="background:#d68910">Stock bas</span> <span class="bg" style="background:#0f7b5f">OK</span> <span class="bg" style="background:#2563eb">Plein</span></p><div class="sc"><table><tr><th>Produit</th><th>Stock min</th><th>Stock max</th>${shops.map(s=>`<th>${esc(s.name)}</th>`).join('')}<th>Total</th></tr>${prods.map(p=>`<tr><td>${esc(p.name)}</td><td>${+p.min||0}</td><td>${+p.max||0}</td>${shops.map(s=>{const q=st(p,s.id);return `<td>${q} ${bd(q,p)}</td>`}).join('')}<td><b>${shops.reduce((x,s)=>x+st(p,s.id),0)}</b></td></tr>`).join('')}<tr><th colspan="3">Valeur (prix d'achat)</th>${shops.map(s=>`<th>${F(bt(s))}</th>`).join('')}<th>${F(shops.reduce((x,s)=>x+bt(s),0))}</th></tr></table></div></div>`}
+function bon(t){
+ const no=String(t.id).slice(-6).toUpperCase(),S={transit:'En transit',received:'Reçu',cancelled:'Annulé'}[t.status]||'';
+ return `<div style="text-align:center"><b style="font-size:16px">BON DE TRANSFERT</b><br>N° ${no}</div><div style="margin:10px 0;font-size:13px;line-height:1.6">Date : ${D(t.ts)}<br>De : <b>${sn(t.from)}</b><br>Vers : <b>${sn(t.to)}</b><br>Produit : <b>${esc(t.n)}</b><br>Quantité : <b>${t.q}</b><br>Émis par : ${esc(t.by||'—')}<br>Statut : ${S}${t.status==='received'?`<br>Reçu le ${D(t.rts)} par ${esc(t.rby||'—')}`:''}</div><table style="width:100%;font-size:12px;color:#000"><tr><td style="padding-top:30px">Signature expéditeur</td><td style="padding-top:30px;text-align:right">Signature réception</td></tr></table>`}
+function vBon(){
+ if(!ct)return '';
+ const t=trs.find(x=>x.id===ct.id)||ct;
+ return `<div class="cd"><div class="row"><b style="flex:1">📄 Bon de transfert</b><button class="b g" data-a="cb">Fermer</button></div><div id="rcp" style="background:#fff;color:#000;padding:12px;border-radius:8px;max-width:420px">${bon(t)}</div><div class="row" style="margin-top:8px"><button class="b" data-a="pr">🖨 Imprimer</button><button class="b g" data-a="dwb">⬇ Télécharger</button></div></div>`}
+function vIn(){
+ const l=trs.filter(t=>t.status==='transit'&&(owner||t.to===shop));
+ return l.length?`<div class="cd" style="border-color:var(--pr)"><h2>📦 Marchandises à réceptionner (${l.length})</h2>${l.map(t=>`<div class="sp"><span>${t.q} × ${esc(t.n)}<br><span class="mu">de ${sn(t.from)} · ${D(t.ts)}</span></span><button class="b" data-a="rcv" data-v="${t.id}">Confirmer la réception</button></div>`).join('')}</div>`:''}
+function vHist(){
+ const L={transit:['En transit','#d68910'],received:['Reçu','#0f7b5f'],cancelled:['Annulé','#667085']};
+ return `<div class="cd"><h2>Historique des transferts</h2><div class="sc"><table><tr><th>Date</th><th>Produit</th><th>Qté</th><th>De</th><th>Vers</th><th>Émis par</th><th>Statut</th><th></th></tr>${trs.slice(0,50).map(t=>{const l=L[t.status]||L.transit;return `<tr><td>${D(t.ts)}</td><td>${esc(t.n)}</td><td>${t.q}</td><td>${sn(t.from)}</td><td>${sn(t.to)}</td><td>${esc(t.by||'')}</td><td><span class="bg" style="background:${l[1]}">${l[0]}</span>${t.status==='received'?`<br><span class="mu">${D(t.rts)} · ${esc(t.rby||'')}</span>`:''}</td><td><button class="b g" data-a="vb" data-v="${t.id}">🧾 Bon</button>${t.status==='transit'?` <button class="b ${armed===t.id?'d':'g'}" data-a="cnt" data-v="${t.id}">${armed===t.id?'Confirmer ?':'Annuler'}</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="8" class="mu">Aucun transfert.</td></tr>'}</table></div></div>`}
+function vReset(){
+ return `<div class="cd" style="border-color:var(--wa)"><h2 class="wa">⚠️ Réinitialisation</h2><p class="mu">À utiliser avant de livrer le logiciel à un client, pour effacer vos données de test. Les comptes utilisateurs sont conservés. Faites d'abord une sauvegarde.</p><div class="row"><button class="b g" data-a="bk">⬇ Sauvegarder les données</button></div><div class="row"><select id="rl"><option value="1">Effacer les ventes, transferts et dettes</option><option value="2">Idem + remettre tout le stock à zéro</option><option value="3">Tout effacer (produits, clients, boutiques, ventes, stock)</option></select></div><div class="row"><input id="rz" placeholder="Tapez REINITIALISER pour confirmer"><button class="b d" data-a="rz">Réinitialiser</button></div></div>`}
+function vForgot(){return `<div class="cd" style="max-width:420px;margin:20px auto"><h2>Mot de passe oublié</h2><p class="mu">Entrez votre e-mail : vous recevrez un lien pour choisir un nouveau mot de passe.</p><div class="row" style="flex-direction:column;align-items:stretch"><input id="le" type="email" placeholder="E-mail" value="${esc(lem)}"><button class="b" data-a="fg">Envoyer le lien</button><button class="b g" data-a="lm" data-v="login">Retour à la connexion</button></div></div>`}
+function vMe(){
+ return `<div class="cd"><h2>Mon compte</h2><p class="mu">${esc(acct.email)} · ${owner?'Propriétaire':'Vendeur'}</p><h2 style="margin-top:12px">Nom</h2><div class="row"><input id="mn" value="${esc(acct.name)}"><button class="b" data-a="mn">Enregistrer</button></div><h2 style="margin-top:12px">Mot de passe</h2><div class="row" style="flex-direction:column;align-items:stretch"><input id="p0" type="password" placeholder="Mot de passe actuel"><input id="p1" type="password" placeholder="Nouveau mot de passe (6 caractères min.)"><button class="b" data-a="mp">Changer le mot de passe</button></div><h2 style="margin-top:12px">E-mail de connexion</h2><div class="row" style="flex-direction:column;align-items:stretch"><input id="e1" type="email" placeholder="Nouvel e-mail"><input id="e0" type="password" placeholder="Mot de passe actuel"><button class="b" data-a="mm">Changer l'e-mail</button></div></div>`}
+async function mv(pid,sid,d){const r=await sb.rpc('stock_add',{pid,k:'s_'+sid,d});if(r.error)throw r.error}
+const val=id=>document.getElementById(id)?.value?.trim();
+const num=s=>parseFloat(String(s??'').replace(/\s/g,'').replace(',','.'))||0;
+async function act(a,v){if(busy)return;busy=true;try{await act0(a,v)}finally{busy=false;Object.keys(L).forEach(refresh)}}
+async function act0(a,v){
+ msg='';
+ try{
+ if(acct&&!owner&&!['tab','add','dec','sell','vw','fm','cx','pr','dw','nc','rcv','out','mp','mn','mm','rec','lm'].includes(a)){msg='Action réservée au propriétaire.'}
+ else if(a==='pick'){shop=v;try{localStorage.setItem('shop',shop)}catch(e){}cart={};cl=''}
+ else if(a==='tab'){tab=v;armed=''}
+ else if(a==='add'){const p=prods.find(x=>x.id===v);if(p&&(cart[v]||0)<st(p,shop))cart[v]=(cart[v]||0)+1}
+ else if(a==='dec'){cart[v]=Math.max(0,(cart[v]||0)-1)}
+ else if(a==='sell'){
+  const items=Object.keys(cart).filter(k=>cart[k]>0).map(k=>{const p=prods.find(x=>x.id===k);return{p:k,n:p.name,q:cart[k],pr:+p.price||0}});
+  if(items.some(i=>i.q>st(prods.find(x=>x.id===i.p),shop))){msg='Stock insuffisant.';}
+  else{const sid=shop,sb=items.reduce((x,i)=>x+i.q*i.pr,0),rm=Math.min(num(val('rm')),sb),tt=sb-rm,c=custs.find(x=>x.id===cl);
+  if(pay==='Crédit'&&!c){msg='Choisissez un client pour une vente à crédit.';render(true);return}
+  const nid=uid(),so={shop:sid,ts:Date.now(),sub:sb,rem:rm,total:tt,pay,cust:cl,items,by:aid};await col('sales').doc(nid).set(so);cur={id:nid,...so};ct=null;
+   cart={};cl='';pay='Espèces';sc=true;msg='✅ Vente enregistrée.'}}
+ else if(a==='adj'||a==='sout'){const q=Math.abs(Math.round(num(val('q'+v))))*(a==='sout'?-1:1);if(q){await mv(v,shop,q)}}
+ else if(a==='tr'){const p=prods.find(x=>x.id===val('tp')),f=val('tf'),t=val('tt'),q=Math.round(num(val('tq')));
+  if(!p||!q||q<=0||f===t)msg='Transfert invalide.';else if(q>st(p,f))msg='Stock insuffisant à la source.';
+  else{const id=uid(),tr={ts:Date.now(),p:p.id,n:p.name,from:f,to:t,q,by:acct?.name||'',status:'transit'};await mv(p.id,f,-q);await col('transfers').doc(id).set(tr);ct={id,...tr};cur=null;sc=true;msg='✅ Transfert émis : le stock est en transit jusqu\u0027à la confirmation de réception.'}}
+ else if(a==='np'){const n=val('pn');if(n){const id=uid();await col('products').doc(id).set({name:n,price:num(val('pp')),min:num(val('pm')),max:num(val('px'))});const r=await sb.rpc('set_cost',{pid:id,c:num(val('pc'))});if(r.error)throw r.error}}
+ else if(a==='ns'){const n=val('sn');if(n)await col('shops').doc(uid()).set({name:n,addr:val('sa')||'',tel:val('stl')||'',ts:Date.now()})}
+ else if(a==='dp'||a==='ds'||a==='dc'){if(armed===v){await col(a==='dp'?'products':a==='dc'?'clients':'shops').doc(v).delete();if(a==='dp')await col('costs').doc(v).delete();armed=''}else armed=v}
+ else if(a==='vs'){if(armed===v){const s=sales.find(x=>x.id===v);if(s){for(const i of s.items||[]){const p=prods.find(x=>x.id===i.p);if(p)await mv(i.p,s.shop,i.q)}const c=custs.find(x=>x.id===s.cust);if(s.pay==='Crédit'&&c)await col('clients').doc(c.id).update({debt:Math.max(0,(+c.debt||0)-s.total)});await col('sales').doc(v).delete();await col('salecosts').doc(v).delete();msg='Vente annulée, stock restitué.'}armed=''}else armed=v}
+ else if(a==='nc'){const n=val('cn');if(n){const id=uid();await col('clients').doc(id).set({name:n,phone:val('cp')||'',debt:0});cl=id}}
+ else if(a==='enc'){const x=Math.round(num(val('d'+v))),c=custs.find(y=>y.id===v);if(c&&x>0)await col('clients').doc(v).update({debt:Math.max(0,(+c.debt||0)-x)})}
+ else if(a==='lm'){lm=v}
+ else if(a==='out'){await sb.auth.signOut();aid='';stopSubs();lm='login'}
+ else if(a==='login'||a==='signup'){
+  const em=(val('le')||'').toLowerCase(),pw=document.getElementById('lp')?.value||'';lem=em;
+  if(!/^[\w.+~:-]+@[\w-]+(\.[\w-]+)+$/.test(em)||pw.length<6)msg='E-mail valide et mot de passe de 6 caractères minimum requis.';
+  else if(a==='login'){const r=await sb.auth.signInWithPassword({email:em,password:pw});
+   if(r.error)msg=/confirm/i.test(r.error.message)?"Confirmez d'abord votre e-mail (lien reçu par e-mail).":'E-mail ou mot de passe incorrect.';
+   else{aid=r.data.user.id;startSubs();await loadAccts();const me=accts.find(x=>x.id===aid);
+    if(!me||me.role==='pending')msg='Compte en attente de validation par le propriétaire.';else tab=me.role==='owner'?'dash':'caisse'}}
+  else{const nm=val('ln');
+   if(!nm)msg='Indiquez votre nom.';
+   else{const r=await sb.auth.signUp({email:em,password:pw,options:{data:{name:nm}}});
+    if(r.error)msg=r.error.message;
+    else if(r.data.session){aid=r.data.user.id;startSubs();await loadAccts();const me=accts.find(x=>x.id===aid);if(me&&me.role==='owner'){tab='dash';hasOwner=true}else msg='Compte créé. Le propriétaire doit le valider avant votre première connexion.'}
+    else{msg='Compte créé. Confirmez votre e-mail, puis le propriétaire devra valider votre compte.';lm='login'}}}}
+ else if(a==='fg'){const em=(val('le')||'').toLowerCase();if(!em)msg='Indiquez votre e-mail.';else{const r=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});msg=r.error?r.error.message:"Si ce compte existe, un e-mail de réinitialisation vient d'être envoyé.";lm='login'}}
+ else if(a==='rec'){const pw=document.getElementById('lp')?.value||'';if(pw.length<6)msg='6 caractères minimum.';else{const r=await sb.auth.updateUser({password:pw});if(r.error)msg=r.error.message;else{msg='✅ Mot de passe modifié.';lm='login'}}}
+ else if(a==='sr'){const sh=val('ts'+v);if(!sh)msg='Choisissez une boutique.';else{const r=await sb.rpc('set_role',{u:v,r:'seller',s:sh});if(r.error)throw r.error;await loadAccts()}}
+ else if(a==='so'){const r=await sb.rpc('set_role',{u:v,r:'owner',s:''});if(r.error)throw r.error;await loadAccts()}
+ else if(a==='da'){if(armed===v){const r=await sb.rpc('rm_user',{u:v});if(r.error)throw r.error;armed='';await loadAccts()}else armed=v}
+ else if(a==='rp'){const x=accts.find(y=>y.id===v);if(x){const r=await sb.auth.resetPasswordForEmail(x.email,{redirectTo:location.origin+location.pathname});msg=r.error?r.error.message:'Lien de réinitialisation envoyé à '+x.email}}
+ else if(a==='mn'){const n=val('mn');if(n){const r=await sb.from('profiles').update({name:n}).eq('id',aid);if(r.error)throw r.error;await loadAccts();msg='✅ Nom modifié.'}}
+ else if(a==='mp'){const p0=document.getElementById('p0')?.value||'',p1=document.getElementById('p1')?.value||'';
+  if(p1.length<6)msg='Nouveau mot de passe : 6 caractères minimum.';
+  else{const c=await sb.auth.signInWithPassword({email:acct.email,password:p0});
+   if(c.error)msg='Mot de passe actuel incorrect.';
+   else{const r=await sb.auth.updateUser({password:p1});msg=r.error?r.error.message:'✅ Mot de passe modifié.'}}}
+ else if(a==='mm'){const ne=(val('e1')||'').toLowerCase(),p0=document.getElementById('e0')?.value||'';
+  if(!/^[\w.+~:-]+@[\w-]+(\.[\w-]+)+$/.test(ne))msg='E-mail invalide.';
+  else{const c=await sb.auth.signInWithPassword({email:acct.email,password:p0});
+   if(c.error)msg='Mot de passe actuel incorrect.';
+   else{const r=await sb.auth.updateUser({email:ne});msg=r.error?r.error.message:"Un e-mail de confirmation a été envoyé à la nouvelle adresse. Le changement sera effectif après confirmation."}}}
+ else if(a==='vw'){cur=sales.find(x=>x.id===v)||null;ct=null;sc=true}
+ else if(a==='fm'){fm=v}
+ else if(a==='cx'){cur=null}
+ else if(a==='pr'){try{window.print()}catch(e){msg='Impression indisponible ici : utilisez Télécharger puis imprimez le fichier.'}}
+ else if(a==='dw'){if(cur&&dl){const no=String(cur.id).slice(-6).toUpperCase();await dl.save({filename:(fm==='facture'?'facture-':'ticket-')+no+'.html',data:`<!DOCTYPE html><meta charset="utf-8"><title>${no}</title><body style="font-family:Arial,sans-serif;max-width:${fm==='facture'?'700px':'320px'};margin:20px auto">${recu(cur)}</body>`})}}
+ else if(a==='sp'){const n=val('en'+v);if(n){await col('products').doc(v).update({name:n,price:num(val('ep'+v)),min:num(val('em'+v)),max:num(val('ex'+v))});const r=await sb.rpc('set_cost',{pid:v,c:num(val('ec'+v))});if(r.error)throw r.error;msg='✅ Produit modifié.'}}
+ else if(a==='ss'){const n=val('sn'+v);if(n){await col('shops').doc(v).update({name:n,addr:val('sa'+v)||'',tel:val('st'+v)||''});msg='✅ Boutique modifiée.'}}
+ else if(a==='rcv'){const t=trs.find(x=>x.id===v);if(t&&t.status==='transit'&&(owner||t.to===shop)){await col('transfers').doc(v).update({status:'received',rts:Date.now(),rby:acct?.name||''});msg='✅ Réception confirmée, stock mis à jour.'}}
+ else if(a==='cnt'){if(armed===v){const t=trs.find(x=>x.id===v);if(t&&t.status==='transit'){const p=prods.find(x=>x.id===t.p);if(p)await mv(t.p,t.from,t.q);await col('transfers').doc(v).update({status:'cancelled'});msg='Transfert annulé, stock rendu à la boutique source.'}armed=''}else armed=v}
+ else if(a==='vb'){ct=trs.find(x=>x.id===v)||null;cur=null;sc=true}
+ else if(a==='cb'){ct=null}
+ else if(a==='dwb'){if(ct&&dl){const t=trs.find(x=>x.id===ct.id)||ct;await dl.save({filename:'bon-transfert-'+String(t.id).slice(-6).toUpperCase()+'.html',data:`<!DOCTYPE html><meta charset="utf-8"><title>Bon de transfert</title><body style="font-family:Arial,sans-serif;max-width:420px;margin:20px auto">${bon(t)}</body>`})}}
+ else if(a==='bk'){if(dl)await dl.save({filename:'sauvegarde-multiboutique.json',data:JSON.stringify({date:new Date().toISOString(),shops,products:prods,sales,clients:custs,transfers:trs},null,1)})}
+ else if(a==='rz'){
+  if(!owner)msg='Réservé au propriétaire.';
+  else if((val('rz')||'').toUpperCase()!=='REINITIALISER')msg='Tapez REINITIALISER pour confirmer.';
+  else{const lv=val('rl'),del=(c,l)=>Promise.all(l.map(x=>col(c).doc(x.id).delete()));
+   await del('sales',sales);await del('salecosts',sales);await del('transfers',trs);cur=null;ct=null;cart={};
+   if(lv==='3'){await del('products',prods);await del('costs',prods);await del('clients',custs);await del('shops',shops);shop=''}
+   else{await Promise.all(custs.map(c=>col('clients').doc(c.id).update({debt:0})));
+    if(lv==='2'&&shops.length)await Promise.all(prods.map(p=>col('products').doc(p.id).update(Object.fromEntries(shops.map(s=>['s_'+s.id,0])))))}
+   msg='✅ Réinitialisation terminée.'}}
+ else if(a==='csv'){
+  const r=[['Date','Boutique','Produit','Qté','Prix','Total ligne']];
+  sales.forEach(s=>(s.items||[]).forEach(i=>r.push([new Date(s.ts).toISOString(),shops.find(x=>x.id===s.shop)?.name||'',i.n,i.q,i.pr,i.q*i.pr])));
+  if(dl)await dl.save({filename:'ventes.csv',data:r.map(x=>x.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n')});
+ }
+ }catch(e){msg=e&&e.code==='declined'?'':'Erreur : '+(e.message||e.code||e)}
+ if(['tab','pick','out','lm'].includes(a)||(['np','sp','ns','ss','adj','sout','tr','nc','enc','sell','mn','sr','so','rp','mp','mm','rz','fg','login','signup','vs','rcv','cnt','da','dp','ds','dc'].includes(a)&&!/insuffisant|invalide|Tapez|Choisissez|minimum|Indiquez|incorrect|existe|utilis|Réservé|refus|attente|Erreur|requis/i.test(msg)))dirty={};
+ render(true);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&b.tagName==='BUTTON')act(b.dataset.a,b.dataset.v)});
+document.addEventListener('input',e=>{const t=e.target;if(t.id&&t.id!=='qs'&&t.type!=='password')dirty[t.id]=t.value;if(e.target.id==='qs'){qs=e.target.value;render(true);const i=$('#qs');i.focus();i.setSelectionRange(qs.length,qs.length)}});
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.q){const k=e.target.dataset.q,p=prods.find(x=>x.id===k),mx=p?st(p,shop):0;let q=Math.max(0,Math.round(num(e.target.value)));msg='';if(q>mx){q=mx;msg='Stock disponible : '+mx}cart[k]=q;render(true);return}if(e.target.tagName==='SELECT'&&e.target.id)dirty[e.target.id]=e.target.value;if(e.target.dataset.a==='pay')pay=e.target.value;if(e.target.dataset.a==='cl')cl=e.target.value;if(e.target.dataset.a==='sel'){shop=e.target.value;try{localStorage.setItem('shop',shop)}catch(x){}cart={};render(true)}});
+document.addEventListener('wheel',()=>{const a=document.activeElement;if(a&&a.type==='number')a.blur()},{passive:true});
+document.addEventListener('focusin',e=>{const t=e.target;if(t.tagName==='INPUT'&&t.inputMode==='decimal'&&t.value)setTimeout(()=>{try{t.select()}catch(x){}},0)});
+document.addEventListener('focusout',()=>setTimeout(()=>{if(pend)render()},150));
+</script></body></html>
